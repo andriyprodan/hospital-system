@@ -5,8 +5,12 @@ from django.urls import reverse_lazy
 
 from .forms import DoctorSignUpForm, PatientSignUpForm, LoginForm
 from .models import User
+from .mixins import StaffRequiredMixin
 
-class DoctorSignUpView(CreateView):
+class DoctorSignUpView(StaffRequiredMixin, CreateView):
+    """
+    Only staff users can add a new Doctors
+    """
     model = User
     form_class = DoctorSignUpForm
     template_name = 'hospital_auth/signup_form.html'
