@@ -1,24 +1,53 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.db import transaction
+from django.utils.crypto import get_random_string
+from django.core.mail import send_mail
+from django.contrib.sites.models import Site
 
 from .models import User, Doctor, Patient, Specialization
 
-class DoctorSignUpForm(UserCreationForm):
+def send_password_by_email(password, send_to):
+    # send email to the user with email and password
+    current_site = Site.objects.get_current()
+    
+    mail_message = f"""
+    You have been registered at site {current_site.domain}
+    Login: {send_to}
+    Password: {password}
+    """
+    send_mail(
+        subject=f'Registration at {current_site.domain}',
+        message=mail_message,
+        from_email=None,
+        recipient_list=[send_to]
+    )
+
+class DoctorSignUpForm(forms.ModelForm):
     spec = forms.ModelMultipleChoiceField(
         queryset=Specialization.objects.all(),
         widget=forms.CheckboxSelectMultiple,
         required=True
     )
+    
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     del self.fields['password1']
+    #     del self.fields['password2']
 
-    class Meta(UserCreationForm.Meta):
+    class Meta():
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'spec')
+        fields = ('email', 'first_name', 'last_name', 'spec')
 
     @transaction.atomic
     def save(self):
         user = super().save(commit=False)
         user.is_doctor = True
+        password = get_random_string()
+        # set random password for the user
+        user.set_password(password)
+        # send password to the newly created user
+        send_password_by_email(password=password, send_to=self.cleaned_data.get('email'))
         user.save()
         doctor = Doctor.objects.create(user=user)
         doctor.spec.add(*self.cleaned_data.get('spec'))
@@ -27,7 +56,7 @@ class DoctorSignUpForm(UserCreationForm):
 class PatientSignUpForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
+        fields = ('email', 'first_name', 'last_name', 'password1', 'password2')
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -37,4 +66,4 @@ class PatientSignUpForm(UserCreationForm):
         return user
 
 class LoginForm(AuthenticationForm):
-    username = forms.CharField(label="Username/Email")
+    username = forms.CharField(label="Email")

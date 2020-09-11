@@ -33,12 +33,14 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'hospital_auth',
     'hospital_records',
+    'appointments',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 ]
 
 MIDDLEWARE = [
@@ -122,7 +124,17 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'hospital_auth.User'
-AUTHENTICATION_BACKENDS = ['hospital_auth.backends.EmailBackend']
 
 LOGIN_REDIRECT_URL = 'hospital_records:home'
-LOGIN_URL = 'login'
+LOGIN_URL = 'hospital_auth:login'
+
+SITE_ID = 1
+
+# python -m smtpd -n -c DebuggingServer localhost:1025
+if DEBUG:
+    EMAIL_HOST = 'localhost'
+    EMAIL_PORT = 1025
+    EMAIL_HOST_USER = ''
+    EMAIL_HOST_PASSWORD = ''
+    EMAIL_USE_TLS = False
+    DEFAULT_FROM_EMAIL = 'testing@example.com'
