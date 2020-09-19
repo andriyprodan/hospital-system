@@ -1,4 +1,4 @@
-from django.contrib.auth import login, views as auth_views
+from django.contrib.auth import login, logout, views as auth_views
 from django.shortcuts import redirect
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
@@ -37,3 +37,8 @@ class PatientSignUpView(CreateView):
 class LoginView(auth_views.LoginView):
     form_class = LoginForm
     template_name = 'hospital_auth/login_form.html'
+
+def logout_view(request):
+    logout(request)
+
+    return redirect('hospital_records:home')
