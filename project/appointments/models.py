@@ -1,7 +1,5 @@
 from django.db import models
 
-from ..hospital_auth.models import Doctor, Patient
-
 class Appointment(models.Model):
     """
     Appointments can be created by patients and doctors.
@@ -15,7 +13,7 @@ class Appointment(models.Model):
     # fields that indicate whether a doctor confirms the appointment
     is_confirmed = models.BooleanField(default=False)
 
-    doctor = models.OneToOneField(Doctor, on_delete=models.CASCADE)
-    patient = models.OneToOneField(Patient, on_delete=models.CASCADE)
+    doctor = models.OneToOneField('hospital_auth.Doctor', on_delete=models.CASCADE)
+    patient = models.OneToOneField('hospital_auth.Patient', on_delete=models.CASCADE)
 
 

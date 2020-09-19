@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext as _
-
+from django.forms import ModelForm
 
 class UserManager(BaseUserManager):
     """
@@ -47,6 +47,8 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     phone = models.CharField(max_length=32)
+
+    objects = UserManager()
 
     is_doctor = models.BooleanField('doctor status', default=False)
     is_patient = models.BooleanField('patient status', default=False)
