@@ -2,6 +2,7 @@ from django.contrib.auth import login, logout, views as auth_views
 from django.shortcuts import redirect
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required
 
 from .forms import DoctorSignUpForm, PatientSignUpForm, LoginForm
 from .models import User
@@ -13,7 +14,7 @@ class DoctorSignUpView(StaffRequiredMixin, CreateView):
     """
     model = User
     form_class = DoctorSignUpForm
-    template_name = 'hospital_auth/signup_form.html'
+    template_name = 'hospital_auth/doctor_signup_form.html'
     success_url = reverse_lazy('hospital_records:home')
 
     def get_context_data(self, **kwargs):
@@ -23,7 +24,7 @@ class DoctorSignUpView(StaffRequiredMixin, CreateView):
 class PatientSignUpView(CreateView):
     model = User
     form_class = PatientSignUpForm
-    template_name = 'hospital_auth/signup_form.html'
+    template_name = 'hospital_auth/patient_signup_form.html'
 
     def get_context_data(self, **kwargs):
         kwargs['user_type'] = 'patient'
@@ -38,6 +39,7 @@ class LoginView(auth_views.LoginView):
     form_class = LoginForm
     template_name = 'hospital_auth/login_form.html'
 
+@login_required
 def logout_view(request):
     logout(request)
 
