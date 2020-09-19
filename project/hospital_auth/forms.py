@@ -29,11 +29,6 @@ class DoctorSignUpForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=True
     )
-    
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     del self.fields['password1']
-    #     del self.fields['password2']
 
     class Meta():
         model = User
