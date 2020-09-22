@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    {% if object_list %}
+        <table class="table table-striped">
+            {% for patient in object_list %}
+                <tr>
+                    <td>{{ patient.user.first_name }}</td>
+                    <td>{{ patient.user.last_name }}</td>
+                    <td>{{ patient.user.email }}</td>
+                    <td>{{ patient.user.phone }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>You don't have any patients</p>
+    {% endif %}
+{% endblock content %}

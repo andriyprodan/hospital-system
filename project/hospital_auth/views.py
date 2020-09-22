@@ -1,12 +1,13 @@
 from django.contrib.auth import login, logout, views as auth_views
-from django.shortcuts import redirect
-from django.views.generic import CreateView
+from django.shortcuts import render, redirect
+from django.views.generic import CreateView, ListView
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 
 from .forms import DoctorSignUpForm, PatientSignUpForm, LoginForm
-from .models import User
-from .mixins import StaffRequiredMixin
+from .models import User, Doctor, Patient
+from .mixins import StaffRequiredMixin, DoctorRequiredMixin
+from .decorators import doctor_required
 
 class DoctorSignUpView(StaffRequiredMixin, CreateView):
     """
@@ -44,3 +45,17 @@ def logout_view(request):
     logout(request)
 
     return redirect('hospital_records:home')
+
+class DoctorPatientListView(DoctorRequiredMixin, ListView):
+    login_required = True
+    model = Patient
+    template_name = 'hospital_auth/doctor_patients.html'
+
+    def get_queryset(self):
+        # get patients that served only by the authenticated doctor
+        object_list = Patient.objects.filter(doctors__pk=
+            self.request.user.doctor.id)
+
+        print(object_list)
+
+        return object_list 

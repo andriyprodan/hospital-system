@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-	<link rel="stylesheet" type="text/css" href="{% static 'blog/main.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'main.css' %}">
 	
 	{% if title %}
 		<title>Sun Hospital - {{ title }}</title>
@@ -32,6 +32,8 @@
 			        {% if user.is_authenticated %}
                 {% if user.is_staff %}
                   <a class="nav-item nav-link" href="{% url 'hospital_auth:register-doctor' %}">Register New Doctor</a>
+                {% elif user.is_doctor %}
+                  <a class="nav-item nav-link" href="{% url 'hospital_auth:doctor_patients' user.doctor.id %}">Your patients</a>
                 {% endif %}
                 <a class="nav-item nav-link" href="{% url 'hospital_auth:logout' %}">Logout</a>
 			        {% else %}
