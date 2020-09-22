@@ -46,7 +46,7 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    phone = models.CharField(max_length=32)
+    phone = models.CharField(max_length=32, blank=True)
 
     objects = UserManager()
 
@@ -62,8 +62,8 @@ class Specialization(models.Model):
 
 class Doctor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    spec = models.ManyToManyField(Specialization)
+    spec = models.ManyToManyField(Specialization, blank=True)
 
 class Patient(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    doctors = models.ManyToManyField(Doctor)
+    doctors = models.ManyToManyField(Doctor, blank=True, related_name='patients')
