@@ -9,7 +9,7 @@ from .views import (
     DoctorPatientListView,
 )
 
-app_name = 'hospital_auth'
+app_name = 'users'
 urlpatterns = [
     path('register/patient/', PatientSignUpView.as_view(), name='register-patient'),
     path('register/doctor/', DoctorSignUpView.as_view(), name='register-doctor'),

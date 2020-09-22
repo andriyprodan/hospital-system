@@ -15,8 +15,8 @@ class DoctorSignUpView(StaffRequiredMixin, CreateView):
     """
     model = User
     form_class = DoctorSignUpForm
-    template_name = 'hospital_auth/doctor_signup_form.html'
-    success_url = reverse_lazy('hospital_records:home')
+    template_name = 'users/doctor_signup_form.html'
+    success_url = reverse_lazy('records:home')
 
     def get_context_data(self, **kwargs):
         kwargs['user_type'] = 'doctor'
@@ -25,7 +25,7 @@ class DoctorSignUpView(StaffRequiredMixin, CreateView):
 class PatientSignUpView(CreateView):
     model = User
     form_class = PatientSignUpForm
-    template_name = 'hospital_auth/patient_signup_form.html'
+    template_name = 'users/patient_signup_form.html'
 
     def get_context_data(self, **kwargs):
         kwargs['user_type'] = 'patient'
@@ -34,22 +34,22 @@ class PatientSignUpView(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)
-        return redirect('hospital_records:home')
+        return redirect('records:home')
 
 class LoginView(auth_views.LoginView):
     form_class = LoginForm
-    template_name = 'hospital_auth/login_form.html'
+    template_name = 'users/login_form.html'
 
 @login_required
 def logout_view(request):
     logout(request)
 
-    return redirect('hospital_records:home')
+    return redirect('records:home')
 
 class DoctorPatientListView(DoctorRequiredMixin, ListView):
     login_required = True
     model = Patient
-    template_name = 'hospital_auth/doctor_patients.html'
+    template_name = 'users/doctor_patients.html'
 
     def get_queryset(self):
         # get patients that served only by the authenticated doctor

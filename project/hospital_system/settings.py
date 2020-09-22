@@ -32,8 +32,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'hospital_auth',
-    'hospital_records',
+    'users',
+    'records',
     'appointments',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -128,10 +128,10 @@ STATICFILES_DIRS = [
     '/var/www/static/',
 ]
 
-AUTH_USER_MODEL = 'hospital_auth.User'
+AUTH_USER_MODEL = 'users.User'
 
-LOGIN_REDIRECT_URL = 'hospital_records:home'
-LOGIN_URL = 'hospital_auth:login'
+LOGIN_REDIRECT_URL = 'records:home'
+LOGIN_URL = 'users:login'
 
 SITE_ID = 1
 
@@ -143,4 +143,3 @@ if DEBUG:
     EMAIL_HOST_PASSWORD = ''
     EMAIL_USE_TLS = False
     DEFAULT_FROM_EMAIL = 'testing@example.com'
-
