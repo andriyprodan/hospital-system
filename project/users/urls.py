@@ -1,6 +1,5 @@
 from django.urls import path
 import django.contrib.auth.views as auth_views 
-
 from .views import (
     PatientSignUpView,
     DoctorSignUpView,
@@ -14,7 +13,9 @@ urlpatterns = [
     path('register/patient/', PatientSignUpView.as_view(), name='register-patient'),
     path('register/doctor/', DoctorSignUpView.as_view(), name='register-doctor'),
     path('login/', LoginView.as_view(), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(template_name='hospital_auth/logout.html'), name='logout'),
+    path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='logout'),
     # patiens of a particular doctor
-    path('doctor/<int:pk>/patients/', DoctorPatientListView.as_view(), name='doctor_patients'),
+    path('doctor/<int:doctor_id>/patients/', DoctorPatientListView.as_view(), name='doctor_patients'),
+    path('get/ajax/search/patients/', DoctorPatientListView.as_view(), name='search_patients'),
+    path('post/ajax/add/patient/', DoctorPatientListView.as_view(), name='add_patient'),
 ]

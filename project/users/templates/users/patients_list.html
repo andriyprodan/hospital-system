@@ -1,0 +1,71 @@
+  <!-- Modal for adding patient-->
+  <div class="modal fade" id="addPatientModal" tabindex="-1" role="dialog" aria-labelledby="addPatientModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addPatientModalLabel">Adding Confirmation</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          ...
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+          <button type="button" class="btn btn-primary confirm-modal">Yes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>First name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            {% if is_search %}
+                <th>Add patient</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody class="table-body">
+        {% for patient in object_list %}
+            <tr>
+                <td class="patient_first_name">{{ patient.user.first_name }}</td>
+                <td class="patient_last_name">{{ patient.user.last_name }}</td>
+                <td>{{ patient.user.email }}</td>
+                <td>{{ patient.user.phone }}</td>
+                {% if is_search %}
+                    {% if patient in user.doctor.patients.all %}
+                        <td><i class="fa fa-check"></i></td>
+                    {% else %}
+                        <td><i class="fa fa-plus-circle add-patient-btn" data-toggle="modal" data-target="#addPatientModal" data-patient-id="{{ patient.id }}"></i></td>
+                    {% endif %}
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if is_paginated %}
+    {% if page_obj.has_previous %}
+        <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
+        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+    {% endif %}
+
+{% endif %}

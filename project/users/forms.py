@@ -62,3 +62,11 @@ class PatientSignUpForm(UserCreationForm):
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(label="Email")
+
+class PatientSearchForm(forms.Form):
+    search_str = forms.CharField(
+        max_length=128,
+        widget=forms.TextInput(attrs={'id': 'search-patient'}),
+        label='Find patient using first name, last name, phone(without "+" sign) number or email',
+        required=False
+        )

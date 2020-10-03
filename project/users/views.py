@@ -3,8 +3,10 @@ from django.shortcuts import render, redirect
 from django.views.generic import CreateView, ListView
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.http import JsonResponse
 
-from .forms import DoctorSignUpForm, PatientSignUpForm, LoginForm
+from .forms import DoctorSignUpForm, PatientSignUpForm, LoginForm, PatientSearchForm
 from .models import User, Doctor, Patient
 from .mixins import StaffRequiredMixin, DoctorRequiredMixin
 from .decorators import doctor_required
@@ -46,16 +48,51 @@ def logout_view(request):
 
     return redirect('records:home')
 
-class DoctorPatientListView(DoctorRequiredMixin, ListView):
-    login_required = True
+class DoctorPatientListView(ListView):
     model = Patient
     template_name = 'users/doctor_patients.html'
+    paginate_by = 10
 
     def get_queryset(self):
-        # get patients that served only by the authenticated doctor
-        object_list = Patient.objects.filter(doctors__pk=
-            self.request.user.doctor.id)
+        qs = super().get_queryset()
+        # doctor searching for patients
+        search_query = self.request.GET.get('q', None)
+        if search_query or search_query == '':
+            qs = qs.filter(
+                Q(user__first_name__contains=search_query) |
+                Q(user__last_name__contains=search_query) |
+                Q(user__phone__contains=search_query) |
+                Q(user__email__contains=search_query)
+            )
+        else:
+            qs = qs.filter(doctors__pk=self.kwargs['doctor_id'])
 
-        print(object_list)
+        return qs.order_by('user__first_name').order_by('user__last_name')
 
-        return object_list 
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax(): # search of the patients
+            # render only piece of the template(patients list)
+            self.template_name = 'users/patients_list.html'
+
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        # add a patient to the doctor's patients list
+        if request.is_ajax():
+            patient = Patient.objects.get(pk=request.POST['patient_id'])   
+            request.user.doctor.patients.add(patient)
+            return JsonResponse({"success": True}, status=200)
+        
+        # some error occured
+        return JsonResponse({"error": ""}, status=400)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_form'] = PatientSearchForm()
+
+        # used to show "add user" button in the table of patients
+        # the button appears only when the doctor starts searching for patients
+        if self.request.GET.get('q'):
+            context['is_search'] = True
+
+        return context
