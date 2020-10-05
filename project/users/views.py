@@ -48,7 +48,7 @@ def logout_view(request):
 
     return redirect('records:home')
 
-class DoctorPatientListView(ListView):
+class DoctorPatientListView(DoctorRequiredMixin, ListView):
     model = Patient
     template_name = 'users/doctor_patients.html'
     paginate_by = 10
