@@ -2,18 +2,11 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 
-UserModel = get_user_model()
-
-class MedicalBook(models.Model):
-    """
-    Medical Book of the particular Patient
-    that stores all the records about Patient illnesses
-    """
-    patient = models.OneToOneField(UserModel, on_delete=models.CASCADE)
+from users.models import Patient, Doctor
 
 class Record(models.Model):
     content = models.TextField(max_length=2048)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    medical_book = models.ForeignKey(MedicalBook, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(UserModel, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)

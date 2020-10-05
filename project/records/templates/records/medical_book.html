@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if user.is_doctor %}
+        <button class="btn btn-success show-form-btn">Add new record</button>
+    {% endif %}
+    <form action="" method="POST" id="add-record-form" data-doctor-id="{{ user.doctor.id }}">
+        {% csrf_token %}
+        {{ record_form }}
+        <button type='submit' class="btn btn-info">Save</button>
+    </form>
+    <div class="records-wrapper">
+        {% if object_list %}
+            {% for record in object_list %}
+                <div class="record">
+                    <p>
+                        {{ record.content }}
+                    </p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Patient doesn't have any records</p>
+        {% endif %}
+    </div>
+{% endblock content %}
+
+{% block javascript %}
+
+<script>
+
+    $('.show-form-btn').on('click', function() {
+        $(this).css('display', 'none');
+        $('#add-record-form').css('display', 'block');
+    });
+
+    $('#add-record-form').on('submit', function(e) {
+        e.preventDefault();
+        var serializedData = $(this).serialize();
+        $.ajax({
+            type: "POST",
+            // add record about patient with id = view.kwargs.patient_id
+            url: "{% url 'records:add-record' view.kwargs.patient_id %}",
+            data: serializedData,
+            success: function(response) {
+                $(this).css('display', 'none');
+                $('.show-form-btn').css('display', 'block');
+
+                // add newly created record under the other records
+                var instance = JSON.parse(response["instance"]);
+                var fields = instance[0]["fields"];
+                $('.records-wrapper').first().prepend('<div class="record"><p>' + fields.content + "</p></div>")
+            },
+            error: function (response) {
+                // alert the error if any error occured
+                console.log(response["responseJSON"]["error"])
+                alert(response["responseJSON"]["error"]);
+            }
+        });
+    });
+
+</script>
+
+{% endblock javascript %}
