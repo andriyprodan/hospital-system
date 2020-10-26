@@ -4,7 +4,7 @@ from .models import Record
 from users.models import Patient, Doctor
 
 class AddRecordForm(forms.ModelForm):
-    content = forms.CharField(max_length=512, widget=forms.Textarea)
+    content = forms.CharField(max_length=2048, widget=forms.Textarea)
 
     class Meta:
         model = Record

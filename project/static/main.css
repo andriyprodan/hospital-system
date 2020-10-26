@@ -91,11 +91,31 @@ a.article-title:hover {
   color: green;
 }
 
+/* #add-record-form textarea */
+#id_content {
+  width: 100%;
+}
+
 .record {
   width: 100%;
   max-height: 200px;
-  overflow-y: scroll;
-  border: 3px solic lightblue;
+  overflow-y: auto;
+  border: 3px solid lightblue;
   border-radius: 10px;
-  padding: 25px;
+  padding: 0px 25px;
+  margin: 15px;
+}
+
+.show-form-btn {
+  display: none;
+}
+.show-form-btn.active {
+  display: inline-block;
+}
+
+#add-record-form {
+  display: none;
+}
+#add-record-form.active {
+  display: block;
 }

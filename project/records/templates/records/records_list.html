@@ -1,0 +1,13 @@
+{% for record in object_list %}
+    <div class="record container">
+        <div class="container text-right mb-2">
+            <small>
+                Created by {{ record.doctor.user.first_name }} {{ record.doctor.user.last_name }},
+                {{ record.created_at }}
+            </small>
+        </div>
+        <p>
+            {{ record.content }}
+        </p>
+    </div>
+{% endfor %}

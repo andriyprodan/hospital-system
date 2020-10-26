@@ -1,53 +1,47 @@
 {% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
 {% block content %}
-    {% if user.is_doctor %}
-        <button class="btn btn-success show-form-btn">Add new record</button>
-    {% endif %}
-    <form action="" method="POST" id="add-record-form" data-doctor-id="{{ user.doctor.id }}">
-        {% csrf_token %}
-        {{ record_form }}
-        <button type='submit' class="btn btn-info">Save</button>
-    </form>
-    <div class="records-wrapper">
-        {% if object_list %}
-            {% for record in object_list %}
-                <div class="record">
-                    <p>
-                        {{ record.content }}
-                    </p>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>Patient doesn't have any records</p>
+    <div class="btn-container container text-right">
+        {% if user.is_doctor %}
+            <button class="btn btn-success show-form-btn active">Add new record</button>
         {% endif %}
+    </div>
+    <div class="form-container container text-center">
+        <form action="" method="POST" id="add-record-form" data-doctor-id="{{ user.doctor.id }}">
+            {% csrf_token %}
+            {{ record_form.content|as_crispy_field }}
+            <button type='submit' class="btn btn-info">Save</button>
+        </form>
+    </div>
+    <div class="records-wrapper" data-page="2">
+        {% include 'records/records_list.html' %}
     </div>
 {% endblock content %}
 
 {% block javascript %}
 
 <script>
-
+    
     $('.show-form-btn').on('click', function() {
-        $(this).css('display', 'none');
-        $('#add-record-form').css('display', 'block');
+        $(this).toggleClass('active');
+        $('#add-record-form').toggleClass('active');
     });
 
     $('#add-record-form').on('submit', function(e) {
         e.preventDefault();
-        var serializedData = $(this).serialize();
+        form = $(this);
+        var serializedData = form.serialize();
+
         $.ajax({
             type: "POST",
-            // add record about patient with id = view.kwargs.patient_id
+            // add a record about the patient with id = view.kwargs.patient_id
             url: "{% url 'records:add-record' view.kwargs.patient_id %}",
             data: serializedData,
             success: function(response) {
-                $(this).css('display', 'none');
-                $('.show-form-btn').css('display', 'block');
-
-                // add newly created record under the other records
-                var instance = JSON.parse(response["instance"]);
-                var fields = instance[0]["fields"];
-                $('.records-wrapper').first().prepend('<div class="record"><p>' + fields.content + "</p></div>")
+                // add a newly created record under the other records
+                $('.records-wrapper').first().prepend(response.new_record_html);
             },
             error: function (response) {
                 // alert the error if any error occured
@@ -55,6 +49,52 @@
                 alert(response["responseJSON"]["error"]);
             }
         });
+        form.find('#id_content').val('');
+        form.toggleClass('active');
+        $('.show-form-btn').toggleClass('active');
+    });
+
+    /*
+    used to check whether there is an ajax call is processing
+    to prevent multiple ajax firing after scrolling to the position with offset
+    */
+    var processing = false;   
+
+    // prevent lazy-loading when there are less than 11 records
+    // var has_next = false
+
+    $(window).on('scroll', function() {
+        if (processing)
+            return false;
+
+        // check whether the user has reached the 
+        // position with offset 200 from the bottom of the page
+        if(($(window).scrollTop() >= $(document).height() - $(window).height() - 200)) {
+            processing = true;
+            // send an ajax request to load more records as the user scroll down
+            page = $(".records-wrapper").data('page')
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'records:lazy-load-records' view.kwargs.patient_id %}",
+                data: {
+                    page: page,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    console.log($(".records-wrapper").data('page'))
+                    // append newly generated html to the end of the records list
+                    $('.records-wrapper').append(response.records_html);
+                    if (response.has_next) {
+                        $(".records-wrapper").data('page', page+1);
+                    } else {
+                        return false
+                    }
+                    // processing keep staying true if response.has_next == false
+                    // to make sure further requests will not be sent
+                    processing = false
+                }
+            });
+        }
     });
 
 </script>
