@@ -67,6 +67,6 @@ class PatientSearchForm(forms.Form):
     search_str = forms.CharField(
         max_length=128,
         widget=forms.TextInput(attrs={'id': 'search-patient'}),
-        label='Find patient using first name, last name, phone(without "+" sign) number or email',
+        label='Find patient using first name, last name, email or phone number (without "+" sign)',
         required=False
         )
