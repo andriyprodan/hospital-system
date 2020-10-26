@@ -1,11 +1,13 @@
 from django.shortcuts import render
 from django.views.generic import ListView
-from django.utils.decorators import method_decorator
+from django.http import Http404
 from django.http import JsonResponse
 from django.core import serializers
 # stuff for lazy loading
 from django.template import loader
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 from users.models import Patient
 from .models import Record
@@ -14,7 +16,19 @@ from .forms import AddRecordForm
 def home(request):
     return render(request, 'records/home.html')
 
-class MedicalBookView(ListView):
+# used in MedicalBookView and lazy_load_records
+def check_user(request, patient_id):
+    if not request.user.is_active:
+        raise Http404()
+    if request.user.is_doctor:
+        # check whether the doctor has a patient in his/her patients list
+        if not request.user.doctor.patients.filter(pk=patient_id).exists():
+            raise Http404()
+    elif request.user.is_patient:
+        if request.user.patient.id != patient_id:
+            raise Http404()
+
+class MedicalBookView(LoginRequiredMixin, ListView):
     """
     Medical book(all records about patient) of a particular patient
     """
@@ -23,13 +37,8 @@ class MedicalBookView(ListView):
     ordering = '-created_at'
 
     def get(self, request, *args, **kwargs):
-        if request.user.is_doctor:
-            # check whether the doctor has a patient in his/her patients list
-            if not request.user.doctor.patients.filter(pk=kwargs['patient_id']).exists():
-                raise Http404('You don\'t have access to this page')
-        elif request.user.is_patient:
-            if request.user.patient.id != kwargs['patient_id']:
-                raise Http404('You don\'t have access to this page')
+
+        check_user(request, kwargs['patient_id'])
 
         return super().get(request, *args, **kwargs)
 
@@ -73,6 +82,12 @@ def lazy_load_records(request, patient_id):
     """
     lazy load the records when the user scroll down to the last record
     """
+
+    if not request.is_ajax():
+        raise Http404()
+
+    check_user(request, patient_id)
+
     page = request.POST.get('page')
     # get all records of the patient with id from the url keyword argument
     records = Record.objects.filter(patient__pk=patient_id).order_by('-created_at')

@@ -1,15 +1,16 @@
 from django.contrib.auth import login, logout, views as auth_views
 from django.shortcuts import render, redirect
 from django.views.generic import CreateView, ListView
+from django.http import Http404
 from django.urls import reverse_lazy
-from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import JsonResponse
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 from .forms import DoctorSignUpForm, PatientSignUpForm, LoginForm, PatientSearchForm
 from .models import User, Doctor, Patient
-from .mixins import StaffRequiredMixin, DoctorRequiredMixin
-from .decorators import doctor_required
+from .mixins import StaffRequiredMixin
 
 class DoctorSignUpView(StaffRequiredMixin, CreateView):
     """
@@ -48,7 +49,7 @@ def logout_view(request):
 
     return redirect('records:home')
 
-class DoctorPatientListView(DoctorRequiredMixin, ListView):
+class DoctorPatientListView(LoginRequiredMixin, ListView):
     model = Patient
     template_name = 'users/doctor_patients.html'
     paginate_by = 10
@@ -70,6 +71,11 @@ class DoctorPatientListView(DoctorRequiredMixin, ListView):
         return qs.order_by('user__first_name').order_by('user__last_name')
 
     def get(self, request, *args, **kwargs):
+        if request.user.is_doctor and request.user.doctor.id != self.kwargs['doctor_id']:
+            raise Http404('You don\'t have access to this page')
+        elif request.user.is_patient:
+            raise Http404('You don\'t have access to this page')
+
         if request.is_ajax(): # search of the patients
             # render only piece of the template(patients list)
             self.template_name = 'users/patients_list.html'
