@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
-class HospitalAuthConfig(AppConfig):
+class UsersConfig(AppConfig):
     name = 'users'
 
     def ready(self):

@@ -37,6 +37,7 @@
                 {% elif user.is_doctor %}
                   <a class="nav-item nav-link" href="{% url 'users:doctor_patients' user.doctor.id %}">Your patients</a>
                 {% endif %}
+                <a class="nav-item nav-link" href="{% url 'records:medical-book' user.id %}">Medical Book</a>
                 <a class="nav-item nav-link" href="{% url 'users:logout' %}">Logout</a>
 			        {% else %}
                 <a class="nav-item nav-link" href="{% url 'users:register-patient' %}">Register</a>

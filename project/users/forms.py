@@ -24,6 +24,9 @@ def send_password_by_email(password, send_to):
     )
 
 class DoctorSignUpForm(forms.ModelForm):
+    """
+    Doctors' accounts created only by staff users
+    """
     spec = forms.ModelMultipleChoiceField(
         queryset=Specialization.objects.all(),
         widget=forms.CheckboxSelectMultiple,
@@ -52,13 +55,6 @@ class PatientSignUpForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
         fields = ('email', 'first_name', 'last_name', 'password1', 'password2')
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.is_patient = True
-        if commit:
-            user.save()
-        return user
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(label="Email")

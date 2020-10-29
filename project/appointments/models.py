@@ -13,7 +13,5 @@ class Appointment(models.Model):
     # fields that indicate whether a doctor confirms the appointment
     is_confirmed = models.BooleanField(default=False)
 
-    doctor = models.OneToOneField('users.Doctor', on_delete=models.CASCADE)
-    patient = models.OneToOneField('users.Patient', on_delete=models.CASCADE)
-
-
+    doctor = models.ForeignKey('users.Doctor', on_delete=models.CASCADE)
+    patient = models.ForeignKey('users.User', on_delete=models.CASCADE)

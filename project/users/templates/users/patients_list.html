@@ -45,7 +45,7 @@
                         <td><i class="fa fa-plus-circle add-patient-btn" data-toggle="modal" data-target="#addPatientModal" data-patient-id="{{ patient.id }}"></i></td>
                     {% endif %}
                 {% endif %}
-                <td><a href="{% url 'records:medical-book' patient.id %}">reference</a></td>
+                <td><a href="{% url 'records:medical-book' patient.user.id %}">reference</a></td>
             </tr>
         {% endfor %}
     </tbody>

@@ -1,7 +1,7 @@
 from django import forms
 
 from .models import Record
-from users.models import Patient, Doctor
+from users.models import User, Doctor
 
 class AddRecordForm(forms.ModelForm):
     content = forms.CharField(max_length=2048, widget=forms.Textarea)
@@ -16,6 +16,6 @@ class AddRecordForm(forms.ModelForm):
         """
         record = super().save(commit=False)
         record.doctor = Doctor.objects.get(pk=doctor_id)
-        record.patient = Patient.objects.get(pk=patient_id)
+        record.patient = User.objects.get(pk=patient_id)
         record.save()
         return record

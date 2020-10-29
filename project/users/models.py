@@ -51,8 +51,6 @@ class User(AbstractUser):
     objects = UserManager()
 
     is_doctor = models.BooleanField('doctor status', default=False)
-    is_patient = models.BooleanField('patient status', default=False)
-
 
 class Specialization(models.Model):
     name = models.CharField(max_length=128, verbose_name=_("Specialization name"))
@@ -65,5 +63,9 @@ class Doctor(models.Model):
     spec = models.ManyToManyField(Specialization, blank=True)
 
 class Patient(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    """
+    Every user has it's own Patient profile
+    to prevent creating an extra accounts for doctors or staff
+    """
+    user = models.OneToOneField(User, primary_key=True, on_delete=models.CASCADE)
     doctors = models.ManyToManyField(Doctor, blank=True, related_name='patients')

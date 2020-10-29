@@ -30,10 +30,6 @@ class PatientSignUpView(CreateView):
     form_class = PatientSignUpForm
     template_name = 'users/patient_signup_form.html'
 
-    def get_context_data(self, **kwargs):
-        kwargs['user_type'] = 'patient'
-        return super().get_context_data(**kwargs)
-
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)
@@ -71,10 +67,11 @@ class DoctorPatientListView(LoginRequiredMixin, ListView):
         return qs.order_by('user__first_name').order_by('user__last_name')
 
     def get(self, request, *args, **kwargs):
-        if request.user.is_doctor and request.user.doctor.id != self.kwargs['doctor_id']:
-            raise Http404('You don\'t have access to this page')
-        elif request.user.is_patient:
-            raise Http404('You don\'t have access to this page')
+        if not request.user.is_superuser:
+            if not request.user.is_doctor:
+                raise Http404('You don\'t have access to this page')
+            elif request.user.doctor.id != self.kwargs['doctor_id']:
+                raise Http404('You don\'t have access to this page')
 
         if request.is_ajax(): # search of the patients
             # render only piece of the template(patients list)

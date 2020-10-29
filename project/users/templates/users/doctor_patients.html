@@ -25,7 +25,7 @@
                 // alert($('.table-body').html())
                 query = $(this).children('input').val();
                 $('.patients-container').load(
-                    "{% url 'users:search_patients' %}?q=" + query
+                    "{% url 'users:search_patients' view.kwargs.doctor_id %}?q=" + query
                 );
             });
 

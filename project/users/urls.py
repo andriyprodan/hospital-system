@@ -16,6 +16,6 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='logout'),
     # patiens of a particular doctor
     path('doctor/<int:doctor_id>/patients/', DoctorPatientListView.as_view(), name='doctor_patients'),
-    path('get/ajax/search/patients/', DoctorPatientListView.as_view(), name='search_patients'),
+    path('doctor<int:doctor_id>/get/ajax/search/patients/', DoctorPatientListView.as_view(), name='search_patients'),
     path('post/ajax/add/patient/', DoctorPatientListView.as_view(), name='add_patient'),
 ]

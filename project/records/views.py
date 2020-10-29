@@ -20,17 +20,17 @@ def home(request):
 def check_user(request, patient_id):
     if not request.user.is_active:
         raise Http404()
+    # user viewing his own medical book
+    if request.user.id == patient_id:
+        return
     if request.user.is_doctor:
-        # check whether the doctor has a patient in his/her patients list
+        # check if the patient is on the doctor's patient list
         if not request.user.doctor.patients.filter(pk=patient_id).exists():
-            raise Http404()
-    elif request.user.is_patient:
-        if request.user.patient.id != patient_id:
             raise Http404()
 
 class MedicalBookView(LoginRequiredMixin, ListView):
     """
-    Medical book(all records about patient) of a particular patient
+    Medical book of a particular patient (all records about patient)
     """
     model = Record
     template_name = 'records/medical_book.html'
