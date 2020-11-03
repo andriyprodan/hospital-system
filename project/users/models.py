@@ -75,8 +75,8 @@ class Patient(models.Model):
     # Each user has their own patient profile, so we can use it for the profile photo.
     photo = models.ImageField(default='default.png', upload_to='profile_pics')
 
-    def save(self):
-        super().save()
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
         img = Image.open(self.photo.path)
 
