@@ -139,3 +139,4 @@ cython_debug/
 
 .vscode
 fill_out_patients.py
+profile_pics

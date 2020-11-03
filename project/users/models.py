@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext as _
 from django.forms import ModelForm
 
+from PIL import Image
+
 class UserManager(BaseUserManager):
     """
     UserManager for User model with no username field
@@ -60,6 +62,7 @@ class Specialization(models.Model):
 
 class Doctor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    bio = models.TextField()
     spec = models.ManyToManyField(Specialization, blank=True)
 
 class Patient(models.Model):
@@ -69,3 +72,15 @@ class Patient(models.Model):
     """
     user = models.OneToOneField(User, primary_key=True, on_delete=models.CASCADE)
     doctors = models.ManyToManyField(Doctor, blank=True, related_name='patients')
+    # Each user has their own patient profile, so we can use it for the profile photo.
+    photo = models.ImageField(default='default.png', upload_to='profile_pics')
+
+    def save(self):
+        super().save()
+
+        img = Image.open(self.photo.path)
+
+        if img.height > 300 or img.width > 300:
+            output_size = (300, 300)
+            img.thumbnail(output_size)
+            img.save(self.photo.path)

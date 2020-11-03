@@ -66,3 +66,18 @@ class PatientSearchForm(forms.Form):
         label='Find patient using first name, last name, email or phone number (without "+" sign)',
         required=False
         )
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name']
+
+class UserProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Patient # every User have a Patient profile
+        fields = ['photo']
+
+class DoctorProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Doctor
+        fields = ['spec', 'bio']

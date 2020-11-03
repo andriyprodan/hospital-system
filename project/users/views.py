@@ -8,7 +8,15 @@ from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 
-from .forms import DoctorSignUpForm, PatientSignUpForm, LoginForm, PatientSearchForm
+from .forms import (
+    DoctorSignUpForm,
+    PatientSignUpForm,
+    LoginForm,
+    PatientSearchForm,
+    UserUpdateForm,
+    UserProfileUpdateForm,
+    DoctorProfileUpdateForm
+)
 from .models import User, Doctor, Patient
 from .mixins import StaffRequiredMixin
 
@@ -99,3 +107,37 @@ class DoctorPatientListView(LoginRequiredMixin, ListView):
             context['is_search'] = True
 
         return context
+
+def profile(request):
+    if request.method == 'POST':
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = UserProfileUpdateForm(
+            request.POST,
+            request.FILES,
+            instance=request.user.patient
+        )
+        if request.user.is_doctor:
+            d_form = DoctorProfileUpdateForm(request.POST, instance=request.user.doctor)
+
+        cond0 = u_form.is_valid() and p_form.is_valid()
+        if request.user.is_doctor:
+            if cond0 and d_form.is_valid():
+                u_form.save()
+                p_form.save()
+                d_form.save()
+                return redirect('users:profile')
+        elif cond0:
+            u_form.save()
+            p_form.save()
+            return redirect('users:profile')
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = UserProfileUpdateForm(instance=request.user.patient)
+        if request.user.is_doctor:
+            d_form = DoctorProfileUpdateForm(instance=request.user.doctor)
+    context = {
+        'u_form': u_form,
+        'p_form': p_form,
+        'd_form': d_form
+    }
+    return render(request, 'users/profile.html', context)
