@@ -2,14 +2,12 @@ from django.shortcuts import render
 from django.views.generic import ListView
 from django.http import Http404
 from django.http import JsonResponse
-from django.core import serializers
 # stuff for lazy loading
 from django.template import loader
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 
-from users.models import Patient
 from .models import Record
 from .forms import AddRecordForm
 
@@ -78,6 +76,7 @@ class MedicalBookView(LoginRequiredMixin, ListView):
         context['record_form'] = AddRecordForm()
         return context
 
+@login_required
 def lazy_load_records(request, patient_id):
     """
     lazy load the records when the user scroll down to the last record
