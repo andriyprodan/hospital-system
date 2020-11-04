@@ -1,6 +1,5 @@
 <tr class='user-row'>
-    <td class="user__first_name">{{ object.user.first_name }}</td>
-    <td class="user__last_name">{{ object.user.last_name }}</td>
+    <td class="full_name">{{ object.user.first_name }} {{ object.user.last_name }}</td>
     <td>{{ object.user.email }}</td>
     <td>{{ object.user.phone }}</td>
     {% if user.is_doctor %}

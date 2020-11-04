@@ -124,7 +124,7 @@ def add_doctor_patient(request, doctor_id):
 
         # refresh table row with this patient
         new_table_row = loader.render_to_string(
-            'users/table_row.html',
+            'users/patient_table_row.html',
             {
                 'object': patient,
                 'user': request.user
