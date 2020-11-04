@@ -141,6 +141,13 @@ STATICFILES_DIRS = (
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+
+    # Put your context processors here
+
+    'django.core.context_processors.request',
+)
+
 # python -m smtpd -n -c DebuggingServer localhost:1025
 if DEBUG:
     EMAIL_HOST = 'localhost'

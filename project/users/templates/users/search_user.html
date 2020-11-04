@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <div class="container mb-3 text-right">
+        <form action="{% url 'users:search_patient' view.kwargs.doctor_id %}" method="GET" id="search_form">
+            {{ search_form }}
+            <button type="submit" class="btn btn-success">Find {{ user_type }}</button>
+        </form>
+    </div>
+	<div class="users-container">
+		{% include 'users/user_list.html' %}
+	</div>
+
+{% endblock content %}
+
+{% block javascript %}
+<script>
+    $(document).ready( function() {
+
+        $('.pagination-btn').each(function(index){
+            // create the URL with parameters for every pagination button
+            // used to prevent the search query from being deleted from the URL
+            var searchParams = new URLSearchParams(window.location.search);
+            console.log(index)
+            if (searchParams.has("q")) {
+                $(this).attr('href', "?q=" + searchParams.get("q") + "&" + $(this).attr('href'))
+            } else {
+                $(this).attr('href', "?" + $(this).attr('href'))
+            }
+        });
+
+    });
+</script>
+{% block inner_js %}{% endblock %}
+{% endblock javascript %}

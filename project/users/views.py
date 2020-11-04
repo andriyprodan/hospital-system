@@ -1,24 +1,27 @@
 from django.contrib.auth import login, logout, views as auth_views
 from django.shortcuts import render, redirect
+from django.views import View
 from django.views.generic import CreateView, ListView
-from django.http import Http404
-from django.urls import reverse_lazy
-from django.db.models import Q
-from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.urls import reverse_lazy
+from django.db.models import Q
+from django.http import Http404
+from django.template import loader
 
 from .forms import (
     DoctorSignUpForm,
     PatientSignUpForm,
     LoginForm,
-    PatientSearchForm,
     UserUpdateForm,
     UserProfileUpdateForm,
-    DoctorProfileUpdateForm
+    DoctorProfileUpdateForm,
+    UserSearchForm,
 )
 from .models import User, Doctor, Patient
-from .mixins import StaffRequiredMixin
+from .decorators import particular_doctor_required
+from .mixins import StaffRequiredMixin, UserSearchMixin, ParticularDoctorRequiredMixin
 
 class DoctorSignUpView(StaffRequiredMixin, CreateView):
     """
@@ -53,61 +56,6 @@ def logout_view(request):
 
     return redirect('records:home')
 
-class DoctorPatientListView(LoginRequiredMixin, ListView):
-    model = Patient
-    template_name = 'users/doctor_patients.html'
-    paginate_by = 10
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        # doctor searching for patients
-        search_query = self.request.GET.get('q', None)
-        if search_query or search_query == '':
-            qs = qs.filter(
-                Q(user__first_name__contains=search_query) |
-                Q(user__last_name__contains=search_query) |
-                Q(user__phone__contains=search_query) |
-                Q(user__email__contains=search_query)
-            )
-        else:
-            qs = qs.filter(doctors__pk=self.kwargs['doctor_id'])
-
-        return qs.order_by('user__first_name').order_by('user__last_name')
-
-    def get(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            if not request.user.is_doctor:
-                raise Http404('You don\'t have access to this page')
-            elif request.user.doctor.id != self.kwargs['doctor_id']:
-                raise Http404('You don\'t have access to this page')
-
-        if request.is_ajax(): # search of the patients
-            # render only piece of the template(patients list)
-            self.template_name = 'users/patients_list.html'
-
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        # add a patient to the doctor's patients list
-        if request.is_ajax():
-            patient = Patient.objects.get(pk=request.POST['patient_id'])   
-            request.user.doctor.patients.add(patient)
-            return JsonResponse({"success": True}, status=200)
-        
-        # some error occured
-        return JsonResponse({"error": ""}, status=400)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['search_form'] = PatientSearchForm()
-
-        # used to show "add user" button in the table of patients
-        # the button appears only when the doctor starts searching for patients
-        if self.request.GET.get('q'):
-            context['is_search'] = True
-
-        return context
-
 def profile(request):
     if request.method == 'POST':
         u_form = UserUpdateForm(request.POST, instance=request.user)
@@ -141,3 +89,54 @@ def profile(request):
         'd_form': d_form
     }
     return render(request, 'users/profile.html', context)
+
+class SearchPatient(UserSearchMixin, LoginRequiredMixin, ParticularDoctorRequiredMixin, ListView):
+    model = Patient
+    template_name = 'users/search_patient.html'
+    paginate_by = 10
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        # when the doctor first hits the page (without searching)
+        if self.request.GET.get('q', None) == None:
+            # get only doctor's patients
+            qs = qs.filter(doctors__pk=self.kwargs['doctor_id'])
+
+        return qs.order_by('user__first_name').order_by('user__last_name')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_form'] = UserSearchForm()
+        context['user_type'] = 'Patient'
+        return context
+
+@particular_doctor_required
+def add_doctor_patient(request, doctor_id):
+    """
+    The view that accepts ajax request with patient id and
+    adds patient with that id to the doctor's patient list
+    """
+    # add a patient to the doctor's patients list
+    if request.is_ajax():
+        patient = Patient.objects.get(pk=request.POST['patient_id'])   
+        request.user.doctor.patients.add(patient)
+
+        # refresh table row with this patient
+        new_table_row = loader.render_to_string(
+            'users/table_row.html',
+            {
+                'object': patient,
+                'user': request.user
+            }
+        )
+        # package output data and return it as a JSON object
+        output_data = {
+            'new_table_row': new_table_row,
+        }
+        return JsonResponse(output_data)
+    else:
+        return JsonResponse({"error": "Bad request"}, status=400)
+    
+    # some error occured
+    return JsonResponse({"error": ""}, status=400)

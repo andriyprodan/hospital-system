@@ -1,0 +1,58 @@
+{% extends 'users/search_user.html' %}
+{% block modal %}
+	<!-- Modal for adding patient-->
+	<div class="modal fade" id="addPatientModal" tabindex="-1" role="dialog" aria-labelledby="addPatientModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+			<h5 class="modal-title" id="addPatientModalLabel">Adding Confirmation</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			</div>
+			<div class="modal-body">
+			...
+			</div>
+			<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+			<button type="button" class="btn btn-primary confirm-modal">Yes</button>
+			</div>
+		</div>
+		</div>
+	</div>
+{% endblock modal %}
+
+{% block inner_js %}
+    <script>
+
+		// called when doctor click "add patient" icon
+		$(document).on('show.bs.modal', '#addPatientModal', function (event) {
+			var add_button = $(event.relatedTarget) // Button that triggered the modal
+			var modal = $(this)
+			modal.find('.modal-title').text('Adding a new patient')
+			var firstName = add_button.parent().siblings(".user__first_name").text()
+			var lastName = add_button.parent().siblings(".user__last_name").text()
+			modal.find('.modal-body').html(
+				"<pre>Do you really want to add " + firstName + " " + lastName + " to your patient's list?</pre>"
+			)
+
+			// click "Yes"
+			$('.confirm-modal').on('click', function() {
+				$.ajax({
+					type: "POST",
+					url: "{% url 'users:add_patient' view.kwargs.doctor_id %}",
+					data: {
+						patient_id: add_button.data('patient-id'),
+						csrfmiddlewaretoken: '{{ csrf_token }}'
+					},
+					success: function(response) {
+						add_button.parents('tr.user-row').replaceWith(response.new_table_row);
+						modal.modal('hide')
+					},
+				});
+			});
+		});
+
+        
+    </script>
+{% endblock inner_js %}

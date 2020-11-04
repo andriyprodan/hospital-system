@@ -1,0 +1,15 @@
+<tr class='user-row'>
+    <td class="user__first_name">{{ object.user.first_name }}</td>
+    <td class="user__last_name">{{ object.user.last_name }}</td>
+    <td>{{ object.user.email }}</td>
+    <td>{{ object.user.phone }}</td>
+    {% if user.is_doctor %}
+        {% if object in user.doctor.patients.all %}
+            <td><i class="fa fa-check" title="Already added"></i></td>
+            <td><a href="{% url 'records:medical-book' object.user.id %}">reference</a></td>
+        {% else %}
+            <td><i class="fa fa-plus-circle add-patient-btn" data-toggle="modal" data-target="#addPatientModal" data-patient-id="{{ object.user.id }}"></i></td>
+            <td></td>
+        {% endif %}
+    {% endif %}
+</tr>

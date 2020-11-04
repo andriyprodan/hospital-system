@@ -6,8 +6,9 @@ from .views import (
     DoctorSignUpView,
     LoginView,
     logout,
-    DoctorPatientListView,
-    profile
+    profile,
+    SearchPatient,
+    add_doctor_patient
 )
 
 app_name = 'users'
@@ -18,8 +19,6 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='logout'),
     path('profile/', profile, name='profile'),
     # patiens of a particular doctor
-    path('doctor/<int:doctor_id>/patients/', DoctorPatientListView.as_view(), name='doctor_patients'),
-    path('doctor<int:doctor_id>/get/ajax/search/patients/', DoctorPatientListView.as_view(), name='search_patients'),
-    path('post/ajax/add/patient/', DoctorPatientListView.as_view(), name='add_patient'),
-    
+    path('doctor/<int:doctor_id>/search_patients/', SearchPatient.as_view(), name='search_patient'),
+    path('doctor/<int:doctor_id>/add/patient/', add_doctor_patient, name='add_patient'),
 ]
