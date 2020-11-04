@@ -1,0 +1,10 @@
+<tr class='user-row' data-appointment-url="">
+    <td class="full_name">{{ object.user.first_name }} {{ object.user.last_name }}</td>
+    <td>
+        {% for spec in object.spec.all %}
+            <p>{{ spec }}</p>
+        {% endfor %}
+    </td>
+    <td>{{ object.bio }}</td>
+    
+</tr>

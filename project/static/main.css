@@ -119,3 +119,8 @@ a.article-title:hover {
 #add-record-form.active {
   display: block;
 }
+
+tr.user-row:hover {
+  cursor: pointer;
+  background-color: lightblue !important;
+}

@@ -1,19 +1,25 @@
 <table class="table table-striped">
+    <caption style="caption-side:top">{{ table_caption }}</caption>
     <thead>
         <tr>
-            <th>First name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            {% if user.is_doctor %}
-              <th>Add patient</th>
-              <th>Medical book</th>
+            <th>Full name</th>
+            {% if user_type == 'Patient' %}
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Add patient</th>
+            {% elif user_type == 'Doctor' %}
+                <th>Specialization</th>
+                <th>Bio</th>
             {% endif %}
         </tr>
     </thead>
     <tbody class="table-body">
         {% for object in object_list %}
-            {% include 'users/patient_table_row.html' %}
+            {% if user_type == 'Patient' %}
+                {% include 'users/patient_table_row.html' %}
+            {% elif user_type == 'Doctor' %}
+                {% include 'users/doctor_table_row.html' %}
+            {% endif %}
         {% endfor %}
     </tbody>
 </table>

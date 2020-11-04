@@ -77,7 +77,7 @@ class DoctorProfileUpdateForm(forms.ModelForm):
 class UserSearchForm(forms.Form):
     q = forms.CharField(
         max_length=128,
-        widget=forms.TextInput(attrs={'id': 'search-patient'}),
-        label='Find patient using first name, last name, email or phone number (without "+" sign)',
+        widget=forms.TextInput(attrs={'id': 'search-user'}),
+        label = '',
         required=False
         )

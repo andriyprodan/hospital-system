@@ -53,6 +53,13 @@
 			});
 		});
 
-        
+		$('tr.user-row').on('click', function() {
+			if ($(this).data('medical-book-url')) {
+				window.location = $(this).data('medical-book-url');
+			} else {
+				alert('You need to add the patient to your patient\'s list firstly')
+			}
+		});
+
     </script>
 {% endblock inner_js %}

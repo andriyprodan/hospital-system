@@ -19,14 +19,12 @@ class UserSearchMixin(object):
         qs = super().get_queryset()
 
         search_query = self.request.GET.get('q', None)
-        if search_query or search_query == '':
+        if search_query is not None:
             qs = qs.filter(
                 Q(user__first_name__contains=search_query) |
-                Q(user__last_name__contains=search_query) |
-                Q(user__phone__contains=search_query) |
-                Q(user__email__contains=search_query)
+                Q(user__last_name__contains=search_query)
             )
-        return qs
+        return qs.order_by('user__first_name').order_by('user__last_name')
 
 class ParticularDoctorRequiredMixin(object):
     @classmethod

@@ -39,6 +39,7 @@
                   <a class="nav-item nav-link" href="{% url 'users:search_patient' user.doctor.id %}">Your patients</a>
                 {% endif %}
                 <a class="nav-item nav-link" href="{% url 'records:medical-book' user.id %}">Medical Book</a>
+                <a class="nav-item nav-link" href="{% url 'users:search_doctor' %}">Request doctor's appointment</a>
                 <a class="nav-item nav-link" href="{% url 'users:profile' %}">Profile</a>
                 <a class="nav-item nav-link" href="{% url 'users:logout' %}">Logout</a>
 			        {% else %}

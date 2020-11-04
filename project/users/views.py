@@ -97,18 +97,24 @@ class SearchPatient(UserSearchMixin, LoginRequiredMixin, ParticularDoctorRequire
 
     def get_queryset(self):
         qs = super().get_queryset()
-
-        # when the doctor first hits the page (without searching)
-        if self.request.GET.get('q', None) == None:
+        
+        search_query = self.request.GET.get('q', None)
+        if search_query is not None:
+            qs = qs.filter(
+                Q(user__phone__contains=search_query) |
+                Q(user__email__contains=search_query)
+            )
+        else: # when the doctor first hits the page (without searching)
             # get only doctor's patients
             qs = qs.filter(doctors__pk=self.kwargs['doctor_id'])
 
-        return qs.order_by('user__first_name').order_by('user__last_name')
+        return qs
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['search_form'] = UserSearchForm()
         context['user_type'] = 'Patient'
+        context['table_caption'] = 'Click on the table row to view the patient\'s medical book'
         return context
 
 @particular_doctor_required
@@ -140,3 +146,28 @@ def add_doctor_patient(request, doctor_id):
     
     # some error occured
     return JsonResponse({"error": ""}, status=400)
+
+class SearchDoctor(UserSearchMixin, LoginRequiredMixin, ListView):
+    model = Doctor
+    template_name = 'users/search_user.html'
+    paginate_by = 10
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        
+        search_query = self.request.GET.get('q', None)
+        if search_query is not None:
+            qs = qs.filter(
+                Q(bio__contains=search_query) |
+                Q(spec__contains=search_query)
+            )
+
+        return qs
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_form'] = UserSearchForm()
+        context['user_type'] = 'Doctor'
+        context['table_caption'] = 'Click on the table row to make an appointment with the doctor'
+        
+        return context
